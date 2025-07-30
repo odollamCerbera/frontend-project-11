@@ -1,4 +1,6 @@
 import './style.css'
+import './styles.scss'
+import 'bootstrap'
 import javascriptLogo from './javascript.svg'
 import viteLogo from '../../../vite.svg'
 import { setupCounter } from './counter.js'
