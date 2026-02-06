@@ -3,6 +3,7 @@ import 'bootstrap'
 import * as yup from 'yup'
 import onChange from 'on-change'
 import i18next from 'i18next'
+import axios from 'axios'
 import resources from './locales.js'
 import render from './view.js'
 
@@ -20,7 +21,6 @@ const elements = {
 const state = {
   formRss: {
     stateForm: 'filling', // 'processing', 'failed', 'success'
-    currentUrl: '',
     isValid: true,
     error: '',
   },
@@ -61,31 +61,32 @@ const createSchema = (urls) => yup.object().shape({
     .notOneOf(urls)
 })
 
-const watchedState = onChange(state, function (path, value, previousValue) {
+const validateUrl = (url, urls) => {
+  const schema = createSchema(urls)
+  return schema.validate({ currentUrl: url })
+}
+
+const watchedState = onChange(state, function (path, value) {
   render(elements, state, i18nextInstance)
 })
 
 elements.formRss.addEventListener('submit', (event) => {
   event.preventDefault()
-  const url = elements.inputUrl.value
 
-  const schema = createSchema(watchedState.data.links)
-  schema
-    .validate({ currentUrl: url })
+  watchedState.formRss.stateForm = 'processing'
+
+  validateUrl(elements.inputUrl.value, watchedState.data.links)
     .then(({ currentUrl }) => {
       watchedState.formRss = {
         stateForm: 'success',
-        currentUrl: currentUrl,
         isValid: true,
         error: '',
       }
       watchedState.data.links.push(currentUrl)
     })
     .catch((error) => {
-      console.log(error)
       watchedState.formRss = {
         stateForm: 'failed',
-        currentUrl: '',
         isValid: false,
         error: error.message,
       }

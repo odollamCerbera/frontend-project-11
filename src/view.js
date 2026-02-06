@@ -1,17 +1,31 @@
+const handleProcessForm = (elements, state) => {
+    switch (state.formRss.stateForm) {
+        case 'processing': {
+            elements.buttonAddUrl.disabled = true
+            elements.inputUrl.readOnly = true
+            break
+        }
+        case 'success': {
+            elements.buttonAddUrl.disabled = false
+            elements.inputUrl.readOnly = false
+            elements.formRss.reset()
+            elements.inputUrl.focus()
+            elements.inputUrl.classList.remove('is-invalid')
+            elements.feedback.textContent = ''
+            break
+        }
+        case 'failed': {
+            elements.buttonAddUrl.disabled = false
+            elements.inputUrl.readOnly = false
+            elements.inputUrl.classList.add('is-invalid')
+            elements.feedback.textContent = `${state.formRss.error}`
+            break
+        }
+        default:
+            break
+    }
+}
+
 export default (elements, state, i18nextInstance) => {
-    elements.buttonAddUrl.disabled = state.formRss.isValid
-    elements.inputUrl.readOnly = state.formRss.isValid
-
-    console.log(elements.feedback)
-
-    if (state.formRss.isValid) {
-        elements.inputUrl.value = ''
-        elements.inputUrl.focus()
-        elements.inputUrl.classList.remove('is-invalid')
-        elements.feedback.textContent = ''
-    }
-    if (!state.formRss.isValid) {
-        elements.inputUrl.classList.add('is-invalid')
-        elements.feedback.textContent = `${state.formRss.error}`
-    }
+    handleProcessForm(elements, state)
 }
