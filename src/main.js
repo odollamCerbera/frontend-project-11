@@ -6,6 +6,7 @@ import i18next from 'i18next'
 import axios from 'axios'
 import resources from './locales.js'
 import render from './view.js'
+import parser from './parser.js'
 
 const defaultLocale = 'ru'
 
@@ -20,6 +21,7 @@ const elements = {
 
 const state = {
   formRss: {
+    currentUrl: '',
     stateForm: 'filling', // 'processing', 'failed', 'success'
     isValid: true,
     error: '',
@@ -67,8 +69,17 @@ const validateUrl = (url, urls) => {
 }
 
 const watchedState = onChange(state, function (path, value) {
+  console.log('path:', path, 'value:', value)
   render(elements, state, i18nextInstance)
 })
+
+const axiosResponse = (url) => {
+  const proxy = 'https://allorigins.hexlet.app/get'
+  const newProxy = new URL(proxy)
+  newProxy.searchParams.append('disableCache', 'true')
+  newProxy.searchParams.append('url', url)
+  return axios.get(newProxy)
+}
 
 elements.formRss.addEventListener('submit', (event) => {
   event.preventDefault()
@@ -77,18 +88,26 @@ elements.formRss.addEventListener('submit', (event) => {
 
   validateUrl(elements.inputUrl.value, watchedState.data.links)
     .then(({ currentUrl }) => {
-      watchedState.formRss = {
-        stateForm: 'success',
-        isValid: true,
-        error: '',
-      }
+      watchedState.formRss.currentUrl = currentUrl
+      watchedState.formRss.stateForm = 'success'
+      watchedState.formRss.isValid = true
+      watchedState.formRss.error = ''
       watchedState.data.links.push(currentUrl)
     })
     .catch((error) => {
-      watchedState.formRss = {
-        stateForm: 'failed',
-        isValid: false,
-        error: error.message,
-      }
+      watchedState.formRss.currentUrl = ''
+      watchedState.formRss.stateForm = 'failed'
+      watchedState.formRss.isValid = false
+      watchedState.formRss.error = error.message
+    })
+    .then(() => {
+      return axiosResponse(watchedState.formRss.currentUrl)
+      // Тут может быть ошибка, которую нужно обработать + изменение стэйт: процесс загрузки
+    })
+    .then((response) => {
+      const content = response.data.contents
+      console.log(content)
+      const { feed, posts } = parser(content)
+      console.log(feed, posts)
     })
 })
