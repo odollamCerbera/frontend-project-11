@@ -4,6 +4,7 @@ import * as yup from 'yup'
 import onChange from 'on-change'
 import i18next from 'i18next'
 import axios from 'axios'
+import uniqueId from 'lodash/uniqueId.js'
 import resources from './locales.js'
 import render from './view.js'
 import parser from './parser.js'
@@ -28,7 +29,7 @@ const state = {
   },
   loadingProcess: {
     status: 'initializing', // 'loading', 'failed', 'success'
-    errors: [],
+    error: '',
   },
   data: {
     posts: [],
@@ -68,46 +69,61 @@ const validateUrl = (url, urls) => {
   return schema.validate({ currentUrl: url })
 }
 
-const watchedState = onChange(state, function (path, value) {
-  console.log('path:', path, 'value:', value)
-  render(elements, state, i18nextInstance)
-})
+const watchedState = onChange(state, render(elements, state, i18nextInstance))
 
-const axiosResponse = (url) => {
-  const proxy = 'https://allorigins.hexlet.app/get'
-  const newProxy = new URL(proxy)
-  newProxy.searchParams.append('disableCache', 'true')
-  newProxy.searchParams.append('url', url)
-  return axios.get(newProxy)
+const getAxiosResponse = (url) => {
+  const proxy = new URL('https://allorigins.hexlet.app/get')
+  proxy.searchParams.append('disableCache', true)
+  proxy.searchParams.append('url', url)
+  return axios.get(proxy)
 }
 
 elements.formRss.addEventListener('submit', (event) => {
   event.preventDefault()
 
   watchedState.formRss.stateForm = 'processing'
+  const inputValue = elements.inputUrl.value
 
-  validateUrl(elements.inputUrl.value, watchedState.data.links)
+  validateUrl(inputValue, watchedState.data.links)
     .then(({ currentUrl }) => {
       watchedState.formRss.currentUrl = currentUrl
-      watchedState.formRss.stateForm = 'success'
       watchedState.formRss.isValid = true
       watchedState.formRss.error = ''
-      watchedState.data.links.push(currentUrl)
-    })
-    .catch((error) => {
-      watchedState.formRss.currentUrl = ''
-      watchedState.formRss.stateForm = 'failed'
-      watchedState.formRss.isValid = false
-      watchedState.formRss.error = error.message
+      watchedState.formRss.stateForm = 'success'
     })
     .then(() => {
-      return axiosResponse(watchedState.formRss.currentUrl)
-      // Тут может быть ошибка, которую нужно обработать + изменение стэйт: процесс загрузки
+      watchedState.loadingProcess.status = 'loading'
+      return getAxiosResponse(watchedState.formRss.currentUrl)
     })
     .then((response) => {
+      watchedState.data.links.push(inputValue)
       const content = response.data.contents
-      console.log(content)
       const { feed, posts } = parser(content)
-      console.log(feed, posts)
+
+      const feedId = uniqueId()
+      watchedState.data.feeds.push({ id: feedId, ...feed })
+      posts.forEach(post => watchedState.data.posts.push({ id: uniqueId(), feedId: feedId, ...post }))
+
+      watchedState.loadingProcess.error = ''
+      watchedState.loadingProcess.status = 'success'
+    })
+    .catch((error) => {
+      // console.log(error.name)
+      watchedState.loadingProcess.status = 'failed'
+      switch (error.name) {
+        case 'ValidationError':
+          watchedState.formRss.currentUrl = ''
+          watchedState.formRss.isValid = false
+          watchedState.formRss.stateForm = 'failed'
+          watchedState.formRss.error = error.message
+        case 'AxiosError':
+          watchedState.loadingProcess.error = i18nextInstance.t('isNetworkError')
+          break
+        case 'Error':
+          watchedState.loadingProcess.error = i18nextInstance.t('isInvalidRSS')
+          break
+        default:
+          break
+      }
     })
 })
