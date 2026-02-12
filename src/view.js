@@ -90,9 +90,6 @@ const handleProcessForm = (elements, state) => {
         case 'success': {
             elements.buttonAddUrl.disabled = false
             elements.inputUrl.readOnly = false
-            elements.formRss.reset()
-            elements.inputUrl.focus()
-            elements.inputUrl.classList.remove('is-invalid')
             elements.feedback.textContent = ''
             break
         }
@@ -118,6 +115,9 @@ const handleLoadingProcess = (elements, state, i18nextInstance) => {
         case 'success': {
             elements.buttonAddUrl.disabled = false
             elements.inputUrl.readOnly = false
+            elements.formRss.reset()
+            elements.inputUrl.focus()
+            elements.inputUrl.classList.remove('is-invalid')
 
             elements.feeds.textContent = ''
             elements.posts.textContent = ''
