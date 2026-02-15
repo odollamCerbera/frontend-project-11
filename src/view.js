@@ -151,7 +151,7 @@ const handleError = (elements, state) => {
 }
 
 export default (elements, state, i18nextInstance) => (path, value) => {
-    // console.log('path', path, 'value', value)
+    console.log('path', path, 'value', value)
     switch (path) {
         case 'formRss.error':
             handleError(elements, state)
@@ -163,6 +163,9 @@ export default (elements, state, i18nextInstance) => (path, value) => {
             handleProcessForm(elements, state)
             break
         case 'loadingProcess.status':
+            handleLoadingProcess(elements, state, i18nextInstance)
+            break
+        case 'data.posts':
             handleLoadingProcess(elements, state, i18nextInstance)
             break
         default:

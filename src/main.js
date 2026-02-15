@@ -67,7 +67,30 @@ const getAxiosResponse = (url) => {
   return axios.get(proxy)
 }
 
+const updatePosts = (state) => {
+  const promises = state.data.feeds
+    .map((feed) => getAxiosResponse(feed.url)
+      .then((response) => {
+        const content = response.data.contents
+        const { posts } = parser(content)
+
+        const oldPosts = state.data.posts.map((post) => post.postLink)
+        const newPosts = posts.filter((post) => !oldPosts.includes(post.postLink))
+        if (newPosts.length > 0) {
+          const normalizedNewPosts = newPosts.map((post) => ({ id: uniqueId(), feedId: feed.id, ...post }))
+          state.data.posts = [...normalizedNewPosts, ...state.data.posts]
+        }
+      })
+      .catch((error) => {
+        state.loadingProcess.error = i18nextInstance.t('isNetworkError')
+      }))
+
+  Promise.allSettled(promises)
+    .finally(() => setTimeout(() => updatePosts(state), 5000))
+}
+
 const watchedState = onChange(state, render(elements, state, i18nextInstance))
+updatePosts(watchedState)
 
 elements.formRss.addEventListener('submit', (event) => {
   event.preventDefault()
@@ -90,8 +113,11 @@ elements.formRss.addEventListener('submit', (event) => {
       const { feed, posts } = parser(content)
 
       const feedId = uniqueId()
-      watchedState.data.feeds.push({ id: feedId, ...feed })
-      posts.forEach(post => watchedState.data.posts.push({ id: uniqueId(), feedId: feedId, ...post }))
+      const normalizedFeed = { id: feedId, url: inputValue, ...feed }
+      watchedState.data.feeds = [normalizedFeed, ...watchedState.data.feeds]
+
+      const normalizedPosts = posts.map((post) => ({ id: uniqueId(), feedId: feedId, ...post }))
+      watchedState.data.posts = [...normalizedPosts, ...watchedState.data.posts]
 
       watchedState.data.links.push(inputValue)
       watchedState.loadingProcess.error = ''
