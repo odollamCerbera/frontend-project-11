@@ -19,12 +19,12 @@ const elements = {
   posts: document.querySelector('.posts'),
   feeds: document.querySelector('.feeds'),
   modal: document.querySelector('.modal'),
-  modalTitle: modal.querySelector('.modal-title'),
-  modalBody: modal.querySelector('.modal-body'),
-  buttonPrimary: modal.querySelector('.btn-primary'),
+  modalTitle: document.querySelector('.modal-title'),
+  modalBody: document.querySelector('.modal-body'),
+  buttonPrimary: document.querySelector('.btn-primary'),
 }
 
-const state = {
+const initalState = {
   formRss: {
     stateForm: 'filling', // 'processing', 'failed', 'success'
     isValid: true,
@@ -57,7 +57,7 @@ i18nextInstance.init({
       },
       string: {
         url: 'isInvalidUrl',
-      }
+      },
     })
   })
 
@@ -83,11 +83,12 @@ const updatePosts = (state) => {
         const oldPosts = state.data.posts.map((post) => post.postLink)
         const newPosts = posts.filter((post) => !oldPosts.includes(post.postLink))
         if (newPosts.length > 0) {
-          const normalizedNewPosts = newPosts.map((post) => ({ id: uniqueId(), feedId: feed.id, ...post }))
+          const normalizedNewPosts = newPosts
+            .map((post) => ({ id: uniqueId(), feedId: feed.id, ...post }))
           state.data.posts = [...normalizedNewPosts, ...state.data.posts]
         }
       })
-      .catch((error) => {
+      .catch(() => {
         state.loadingProcess.error = i18nextInstance.t('isNetworkError')
       }))
 
@@ -95,7 +96,7 @@ const updatePosts = (state) => {
     .finally(() => setTimeout(() => updatePosts(state), 5000))
 }
 
-const watchedState = onChange(state, render(elements, state, i18nextInstance))
+const watchedState = onChange(initalState, render(elements, initalState, i18nextInstance))
 updatePosts(watchedState)
 
 elements.formRss.addEventListener('submit', (event) => {
@@ -122,7 +123,7 @@ elements.formRss.addEventListener('submit', (event) => {
       const normalizedFeed = { id: feedId, url: inputValue, ...feed }
       watchedState.data.feeds = [normalizedFeed, ...watchedState.data.feeds]
 
-      const normalizedPosts = posts.map((post) => ({ id: uniqueId(), feedId: feedId, ...post }))
+      const normalizedPosts = posts.map((post) => ({ id: uniqueId(), feedId, ...post }))
       watchedState.data.posts = [...normalizedPosts, ...watchedState.data.posts]
 
       watchedState.data.links.push(inputValue)
@@ -136,6 +137,7 @@ elements.formRss.addEventListener('submit', (event) => {
           watchedState.formRss.isValid = false
           watchedState.formRss.error = i18nextInstance.t(error.message)
           watchedState.formRss.stateForm = 'failed'
+          break
         case 'AxiosError':
           watchedState.loadingProcess.error = i18nextInstance.t('isNetworkError')
           break
@@ -154,7 +156,7 @@ elements.posts.addEventListener('click', (event) => {
   if (postLink) watchedState.data.visitedPosts.add(postLink.dataset.id)
 
   if (previewBtn) {
-    const id = previewBtn.dataset.id
+    const { id } = previewBtn.dataset
     watchedState.data.currentVisitedPostInModal = id
     watchedState.data.visitedPosts.add(id)
   }

@@ -14,6 +14,9 @@ const compat = new FlatCompat({
 
 export default [
   {
+    ignores: ['**/node_modules/**', 'dist/**', 'build/**'],
+  },
+  {
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -47,6 +50,11 @@ export default [
       'import/no-named-as-default-member': 'off',
       'no-console': 'off',
       'import/no-extraneous-dependencies': 'off',
+      'import/no-unresolved': ['error', { ignore: ['on-change'] }],
+      'no-param-reassign': ['error', {
+        props: true,
+        ignorePropertyModificationsFor: ['state', 'elements'],
+      }],
       semi: ['error', 'never'],
     },
   },
