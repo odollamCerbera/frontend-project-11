@@ -58,7 +58,9 @@ const createPosts = (state, i18nextInstance) => {
         li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0')
 
         const a = document.createElement('a')
-        a.classList.add('fw-bold') // Будет меняться в зависимости от просмотра
+
+        a.classList.add(state.data.visitedPosts.has(id) ? 'fw-normal' : 'fw-bold')
+        if (state.data.visitedPosts.has(id)) { a.style = 'color: #6c757d' }
         a.setAttribute('href', postLink)
         a.setAttribute('data-id', id)
         a.setAttribute('target', '_blank')
@@ -150,8 +152,15 @@ const handleError = (elements, state) => {
     elements.feedback.textContent = state.formRss.error || state.loadingProcess.error
 }
 
+const handleModal = (elements, state, postId) => {
+    const currentPost = state.data.posts.find(post => post.id === postId)
+    elements.modalTitle.textContent = currentPost.postTitle
+    elements.modalBody.textContent = currentPost.postDescription
+    elements.buttonPrimary.setAttribute('href', currentPost.postLink)
+}
+
 export default (elements, state, i18nextInstance) => (path, value) => {
-    console.log('path', path, 'value', value)
+    // console.log('path', path, 'value', value)
     switch (path) {
         case 'formRss.error':
             handleError(elements, state)
@@ -168,6 +177,10 @@ export default (elements, state, i18nextInstance) => (path, value) => {
         case 'data.posts':
             handleLoadingProcess(elements, state, i18nextInstance)
             break
+        case 'data.visitedPosts':
+            handleLoadingProcess(elements, state, i18nextInstance)
+        case 'data.currentVisitedPostInModal':
+            handleModal(elements, state, value)
         default:
             break
     }

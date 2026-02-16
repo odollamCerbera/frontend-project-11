@@ -18,6 +18,10 @@ const elements = {
   feedback: document.querySelector('.feedback'),
   posts: document.querySelector('.posts'),
   feeds: document.querySelector('.feeds'),
+  modal: document.querySelector('.modal'),
+  modalTitle: modal.querySelector('.modal-title'),
+  modalBody: modal.querySelector('.modal-body'),
+  buttonPrimary: modal.querySelector('.btn-primary'),
 }
 
 const state = {
@@ -31,9 +35,11 @@ const state = {
     error: '',
   },
   data: {
-    posts: [],
-    feeds: [],
     links: [],
+    feeds: [],
+    posts: [],
+    visitedPosts: new Set(),
+    currentVisitedPostInModal: '',
   },
 }
 
@@ -140,4 +146,16 @@ elements.formRss.addEventListener('submit', (event) => {
           break
       }
     })
+})
+
+elements.posts.addEventListener('click', (event) => {
+  const previewBtn = event.target.closest('button[data-id]')
+  const postLink = event.target.closest('a[data-id]')
+  if (postLink) watchedState.data.visitedPosts.add(postLink.dataset.id)
+
+  if (previewBtn) {
+    const id = previewBtn.dataset.id
+    watchedState.data.currentVisitedPostInModal = id
+    watchedState.data.visitedPosts.add(id)
+  }
 })
