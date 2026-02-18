@@ -9,18 +9,18 @@ RSS Aggregator is a web application for automatically collecting messages, news,
 The RSS aggregator allows users to add and manage multiple RSS feeds, automatically update feeds in real time, and read content using a simple and user-friendly interface.
 
 ## Features
-✅ URL validation for RSS feeds
-✅ Real-time feed updates
-✅ Bootstrap-powered responsive UI
-✅ Multilingual support
-✅ Detailed error handling
+* ✅ URL validation for RSS feeds
+* ✅ Real-time feed updates
+* ✅ Bootstrap-powered responsive UI
+* ✅ Multilingual support
+* ✅ Detailed error handling
 
 ## Installation
-# clone repo
+### clone repository
 ```
 git clone git@github.com:odollamCerbera/frontend-project-11.git
 ```
-# install dependencies
+### install dependencies
 ```
 make install  
 ```
