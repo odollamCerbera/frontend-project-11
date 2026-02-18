@@ -153,11 +153,15 @@ elements.formRss.addEventListener('submit', (event) => {
 })
 
 elements.posts.addEventListener('click', (event) => {
-  const previewButton = event.target.closest('button[data-id]')
-  const postLink = event.target.closest('a[data-id]')
-  if (postLink) watchedState.uiState.visitedPosts.add(postLink.dataset.id)
-  if (previewButton) {
-    watchedState.uiState.currentVisitedPost = previewButton.dataset.id
-    watchedState.uiState.visitedPosts.add(previewButton.dataset.id)
-  }
+  if (!event.target.closest('a[data-id]') && !event.target.closest('button[data-id]')) return
+  const postItem = event.target.closest('li.list-group-item').querySelector('a')
+
+  if (!postItem) return
+
+  postItem.classList.add('fw-normal')
+  postItem.classList.remove('fw-bold')
+  postItem.style = 'color: #6c757d'
+
+  watchedState.uiState.currentVisitedPost = postItem.dataset.id
+  watchedState.uiState.visitedPosts.add(postItem.dataset.id)
 })

@@ -1,8 +1,8 @@
 import createFeeds from './feeds'
 import createPosts from './posts'
 
-const handleProcessForm = (elements, state) => {
-  switch (state.formRss.stateForm) {
+const handleProcessForm = (elements, statusProcessForm) => {
+  switch (statusProcessForm) {
     case 'processing': {
       elements.buttonAddUrl.disabled = true
       elements.inputUrl.readOnly = true
@@ -18,7 +18,6 @@ const handleProcessForm = (elements, state) => {
       elements.buttonAddUrl.disabled = false
       elements.inputUrl.readOnly = false
       elements.inputUrl.classList.add('is-invalid')
-      elements.feedback.textContent = `${state.formRss.error}`
       break
     }
     default:
@@ -26,8 +25,8 @@ const handleProcessForm = (elements, state) => {
   }
 }
 
-const handleLoadingProcess = (elements, state, i18nextInstance) => {
-  switch (state.loadingProcess.status) {
+const handleLoadingProcess = (elements, statusLoadingProcess, i18nextInstance) => {
+  switch (statusLoadingProcess) {
     case 'loading': {
       elements.buttonAddUrl.disabled = true
       elements.inputUrl.readOnly = true
@@ -40,14 +39,7 @@ const handleLoadingProcess = (elements, state, i18nextInstance) => {
       elements.inputUrl.focus()
       elements.inputUrl.classList.remove('is-invalid')
 
-      elements.feeds.textContent = ''
-      elements.posts.textContent = ''
-
-      elements.feeds.append(createFeeds(state.data.feeds, i18nextInstance))
-      elements.posts.append(createPosts(state.data.posts, state.uiState.visitedPosts, i18nextInstance))
-
       elements.feedback.textContent = i18nextInstance.t('successRss')
-
       elements.feedback.classList.remove('text-danger')
       elements.feedback.classList.add('text-success')
       break
@@ -55,11 +47,7 @@ const handleLoadingProcess = (elements, state, i18nextInstance) => {
     case 'failed': {
       elements.buttonAddUrl.disabled = false
       elements.inputUrl.readOnly = false
-
-      elements.feedback.textContent = `${state.loadingProcess.error}`
       elements.inputUrl.classList.add('is-invalid')
-      elements.feedback.classList.remove('text-success')
-      elements.feedback.classList.add('text-danger')
       break
     }
     default:
@@ -67,9 +55,23 @@ const handleLoadingProcess = (elements, state, i18nextInstance) => {
   }
 }
 
-const handleError = (element, error) => element.textContent = error
+const handleFeeds = (elements, feeds, i18nextInstance) => {
+  elements.feeds.textContent = ''
+  elements.feeds.append(createFeeds(feeds, i18nextInstance))
+}
 
-const handleModal = (elements, posts, postId) => {
+const handlePosts = (elements, posts, visitedPosts, i18nextInstance) => {
+  elements.posts.textContent = ''
+  elements.posts.append(createPosts(posts, visitedPosts, i18nextInstance))
+}
+
+const handleError = (elements, error) => {
+  elements.feedback.textContent = error
+  elements.feedback.classList.remove('text-success')
+  elements.feedback.classList.add('text-danger')
+}
+
+const handleModal = (elements, postId, posts) => {
   const currentPost = posts.find(post => post.id === postId)
   const { postTitle, postDescription, postLink } = currentPost
   elements.modalTitle.textContent = postTitle
@@ -78,26 +80,27 @@ const handleModal = (elements, posts, postId) => {
 }
 
 export default (elements, state, i18nextInstance) => (path, value) => {
-  console.log('path', path, 'value', value)
   switch (path) {
     case 'formRss.error':
+      handleError(elements, value)
+      break
     case 'loadingProcess.error':
-      handleError(element.feedback, value)
+      handleError(elements, value)
       break
     case 'formRss.stateForm':
-      handleProcessForm(elements, state)
+      handleProcessForm(elements, value)
       break
     case 'loadingProcess.status':
-      handleLoadingProcess(elements, state, i18nextInstance)
+      handleLoadingProcess(elements, value, i18nextInstance)
+      break
+    case 'data.feeds':
+      handleFeeds(elements, value, i18nextInstance)
       break
     case 'data.posts':
-      handleLoadingProcess(elements, state, i18nextInstance)
-      break
-    case 'uiState.visitedPosts':
-      handleLoadingProcess(elements, state, i18nextInstance)
+      handlePosts(elements, value, state.uiState.visitedPosts, i18nextInstance)
       break
     case 'uiState.currentVisitedPost':
-      handleModal(elements, state.data.posts, value)
+      handleModal(elements, value, state.data.posts)
       break
     default:
       break
