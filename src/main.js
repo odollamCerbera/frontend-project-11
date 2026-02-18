@@ -38,9 +38,11 @@ const initalState = {
     links: [],
     feeds: [],
     posts: [],
-    visitedPosts: new Set(),
-    currentVisitedPostInModal: '',
   },
+  uiState: {
+    visitedPosts: new Set(),
+    currentVisitedPost: '',
+  }
 }
 
 const i18nextInstance = i18next.createInstance()
@@ -151,13 +153,11 @@ elements.formRss.addEventListener('submit', (event) => {
 })
 
 elements.posts.addEventListener('click', (event) => {
-  const previewBtn = event.target.closest('button[data-id]')
+  const previewButton = event.target.closest('button[data-id]')
   const postLink = event.target.closest('a[data-id]')
-  if (postLink) watchedState.data.visitedPosts.add(postLink.dataset.id)
-
-  if (previewBtn) {
-    const { id } = previewBtn.dataset
-    watchedState.data.currentVisitedPostInModal = id
-    watchedState.data.visitedPosts.add(id)
+  if (postLink) watchedState.uiState.visitedPosts.add(postLink.dataset.id)
+  if (previewButton) {
+    watchedState.uiState.currentVisitedPost = previewButton.dataset.id
+    watchedState.uiState.visitedPosts.add(previewButton.dataset.id)
   }
 })

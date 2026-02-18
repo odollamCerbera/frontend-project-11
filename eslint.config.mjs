@@ -55,7 +55,6 @@ export default [
         props: true,
         ignorePropertyModificationsFor: ['state', 'elements'],
       }],
-      semi: ['error', 'never'],
     },
   },
 ]

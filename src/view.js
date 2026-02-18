@@ -59,8 +59,8 @@ const createPosts = (state, i18nextInstance) => {
 
     const a = document.createElement('a')
 
-    a.classList.add(state.data.visitedPosts.has(id) ? 'fw-normal' : 'fw-bold')
-    if (state.data.visitedPosts.has(id)) { a.style = 'color: #6c757d' }
+    a.classList.add(state.uiState.visitedPosts.has(id) ? 'fw-normal' : 'fw-bold')
+    if (state.uiState.visitedPosts.has(id)) { a.style = 'color: #6c757d' }
     a.setAttribute('href', postLink)
     a.setAttribute('data-id', id)
     a.setAttribute('target', '_blank')
@@ -139,8 +139,8 @@ const handleLoadingProcess = (elements, state, i18nextInstance) => {
 
       elements.feedback.textContent = `${state.loadingProcess.error}`
       elements.inputUrl.classList.add('is-invalid')
-      elements.feedback.classList.add('text-danger')
       elements.feedback.classList.remove('text-success')
+      elements.feedback.classList.add('text-danger')
       break
     }
     default:
@@ -154,7 +154,6 @@ const handleError = (elements, state) => {
 
 const handleModal = (elements, state, postId) => {
   const currentPost = state.data.posts.find((post) => post.id === postId)
-  console.log(currentPost)
   elements.modalTitle.textContent = currentPost.postTitle
   elements.modalBody.textContent = currentPost.postDescription
   elements.buttonPrimary.setAttribute('href', currentPost.postLink)
@@ -178,10 +177,10 @@ export default (elements, state, i18nextInstance) => (path, value) => {
     case 'data.posts':
       handleLoadingProcess(elements, state, i18nextInstance)
       break
-    case 'data.visitedPosts':
+    case 'uiState.visitedPosts':
       handleLoadingProcess(elements, state, i18nextInstance)
       break
-    case 'data.currentVisitedPostInModal':
+    case 'uiState.currentVisitedPost':
       handleModal(elements, state, value)
       break
     default:
