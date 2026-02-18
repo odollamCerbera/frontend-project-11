@@ -42,7 +42,7 @@ const initalState = {
   uiState: {
     visitedPosts: new Set(),
     currentVisitedPost: '',
-  }
+  },
 }
 
 const i18nextInstance = i18next.createInstance()
@@ -77,16 +77,16 @@ const getAxiosResponse = (url) => {
 
 const updatePosts = (state) => {
   const promises = state.data.feeds
-    .map((feed) => getAxiosResponse(feed.url)
+    .map(feed => getAxiosResponse(feed.url)
       .then((response) => {
         const content = response.data.contents
         const { posts } = parser(content)
 
-        const oldPosts = state.data.posts.map((post) => post.postLink)
-        const newPosts = posts.filter((post) => !oldPosts.includes(post.postLink))
+        const oldPosts = state.data.posts.map(post => post.postLink)
+        const newPosts = posts.filter(post => !oldPosts.includes(post.postLink))
         if (newPosts.length > 0) {
           const normalizedNewPosts = newPosts
-            .map((post) => ({ id: uniqueId(), feedId: feed.id, ...post }))
+            .map(post => ({ id: uniqueId(), feedId: feed.id, ...post }))
           state.data.posts = [...normalizedNewPosts, ...state.data.posts]
         }
       })
@@ -125,7 +125,7 @@ elements.formRss.addEventListener('submit', (event) => {
       const normalizedFeed = { id: feedId, url: inputValue, ...feed }
       watchedState.data.feeds = [normalizedFeed, ...watchedState.data.feeds]
 
-      const normalizedPosts = posts.map((post) => ({ id: uniqueId(), feedId, ...post }))
+      const normalizedPosts = posts.map(post => ({ id: uniqueId(), feedId, ...post }))
       watchedState.data.posts = [...normalizedPosts, ...watchedState.data.posts]
 
       watchedState.data.links.push(inputValue)

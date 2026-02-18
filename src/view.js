@@ -60,7 +60,7 @@ const createPosts = (state, i18nextInstance) => {
     const a = document.createElement('a')
 
     a.classList.add(state.uiState.visitedPosts.has(id) ? 'fw-normal' : 'fw-bold')
-    if (state.uiState.visitedPosts.has(id)) { a.style = 'color: #6c757d' }
+    a.style = state.uiState.visitedPosts.has(id) ? 'color: #6c757d' : 'color: #06EFD'
     a.setAttribute('href', postLink)
     a.setAttribute('data-id', id)
     a.setAttribute('target', '_blank')
@@ -153,7 +153,7 @@ const handleError = (elements, state) => {
 }
 
 const handleModal = (elements, state, postId) => {
-  const currentPost = state.data.posts.find((post) => post.id === postId)
+  const currentPost = state.data.posts.find(post => post.id === postId)
   elements.modalTitle.textContent = currentPost.postTitle
   elements.modalBody.textContent = currentPost.postDescription
   elements.buttonPrimary.setAttribute('href', currentPost.postLink)
