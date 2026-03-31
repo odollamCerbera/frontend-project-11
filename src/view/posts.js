@@ -6,8 +6,11 @@ const createPost = (post, visitedPosts, i18nextInstance) => {
 
   const a = document.createElement('a')
 
-  a.classList.add(visitedPosts.has(id) ? 'fw-normal' : 'fw-bold')
-  a.style = visitedPosts.has(id) ? 'color: #6c757d' : 'color: #06EFD'
+  if (visitedPosts.has(id)) {
+    a.classList.add('fw-normal', 'link-secondary')
+  } else {
+    a.classList.add('fw-bold')
+  }
   a.setAttribute('href', postLink)
   a.setAttribute('target', '_blank')
   a.setAttribute('rel', 'noopener noreferrer')
