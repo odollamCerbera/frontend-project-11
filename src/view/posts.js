@@ -5,10 +5,10 @@ const createPost = (post, visitedPosts, i18nextInstance) => {
   li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0')
 
   const a = document.createElement('a')
-
   if (visitedPosts.has(id)) {
     a.classList.add('fw-normal', 'link-secondary')
-  } else {
+  }
+  else {
     a.classList.add('fw-bold')
   }
   a.setAttribute('href', postLink)

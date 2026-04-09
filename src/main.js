@@ -158,7 +158,7 @@ elements.posts.addEventListener('click', (event) => {
 
   if (!postItem) return
 
-  postItem.classList.add('fw-normal')
+  postItem.classList.add('fw-normal', 'link-secondary')
   postItem.classList.remove('fw-bold')
   postItem.style = 'color: #6c757d'
 
